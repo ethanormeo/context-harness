@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CONTEXT HARNESS // an operating system built on Claude</title>
+<meta name="description" content="A dissection of a self-built autonomous AI operating system — a git brain, a fleet of always-on terminal agents, and a $0 cost model — engineered on top of Claude.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#070b08; --bg2:#0a110c; --panel:#0c140e; --line:#16241a;
+  --grn:#3dffa0; --grn-dim:#1f9d63; --grn-deep:#0d3a26;
+  --amber:#ffb454; --red:#ff5f56; --yellow:#ffbd2e; --cyan:#5ad6ff;
+  --txt:#d3efe1; --txt-dim:#8cbaa1; --white:#f1fff8;
+  --glow:0 0 14px rgba(61,255,160,.35);
+  --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+  --disp:'Space Grotesk',var(--mono);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg); color:var(--txt); font-family:var(--mono);
+  font-size:15px; line-height:1.6; overflow-x:hidden;
+  background-image:radial-gradient(circle at 20% 0%,rgba(13,58,38,.45),transparent 45%),radial-gradient(circle at 90% 20%,rgba(13,40,58,.3),transparent 40%);
+}
+/* CRT scanlines + flicker */
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:9998;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,0) 0px,rgba(0,0,0,0) 2px,rgba(0,0,0,.18) 3px,rgba(0,0,0,0) 4px);mix-blend-mode:multiply;opacity:.5}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:9997;background:radial-gradient(ellipse at center,transparent 60%,rgba(0,0,0,.5) 100%)}
+a{color:var(--grn);text-decoration:none}
+::selection{background:var(--grn);color:#04150c}
+.wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+.mono{font-family:var(--mono)}
+.dim{color:var(--txt-dim)}
+.grn{color:var(--grn)}.amber{color:var(--amber)}.cyan{color:var(--cyan)}.white{color:var(--white)}
+
+/* ===== BOOT OVERLAY ===== */
+#boot{position:fixed;inset:0;z-index:10000;background:#040805;display:flex;align-items:center;justify-content:center;transition:opacity .8s}
+#boot .term{width:min(760px,92vw);font-size:13.5px;line-height:1.7;color:var(--grn);text-shadow:var(--glow)}
+#boot .ln{white-space:pre-wrap;opacity:0}
+.cur{display:inline-block;width:9px;height:16px;background:var(--grn);box-shadow:var(--glow);animation:blink 1s steps(1) infinite;vertical-align:-2px}
+@keyframes blink{50%{opacity:0}}
+.hide{opacity:0!important;pointer-events:none}
+
+/* ===== NAV ===== */
+nav{position:sticky;top:0;z-index:900;background:rgba(7,11,8,.82);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;gap:6px;height:52px;flex-wrap:wrap}
+nav .brand{color:var(--grn);font-weight:800;letter-spacing:.5px;margin-right:auto;text-shadow:var(--glow)}
+nav .brand b{color:var(--white)}
+nav a.t{color:var(--txt-dim);padding:5px 9px;border:1px solid transparent;border-radius:4px;font-size:12.5px;transition:.15s}
+nav a.t:hover{color:var(--grn);border-color:var(--line);background:var(--panel)}
+@media(max-width:720px){nav a.t{display:none}}
+
+/* ===== HERO ===== */
+header{padding:90px 0 60px;text-align:center;position:relative}
+.tag{display:inline-block;border:1px solid var(--grn-dim);color:var(--grn);padding:4px 12px;border-radius:20px;font-size:11.5px;letter-spacing:2px;text-transform:uppercase;margin-bottom:26px;box-shadow:var(--glow)}
+h1{font-family:var(--disp);font-size:clamp(34px,6.4vw,72px);line-height:1.02;letter-spacing:-1.5px;color:var(--white);font-weight:700}
+h1 .g{color:var(--grn);text-shadow:var(--glow)}
+.sub{max-width:680px;margin:24px auto 0;color:var(--txt-dim);font-size:16px}
+.sub b{color:var(--txt)}
+.stats{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:40px}
+.stat{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:14px 20px;min-width:120px}
+.stat .n{font-family:var(--disp);font-size:26px;color:var(--grn);font-weight:700;text-shadow:var(--glow)}
+.stat .l{font-size:11px;color:var(--txt-dim);text-transform:uppercase;letter-spacing:1px;margin-top:3px}
+
+/* ===== SECTION ===== */
+section{padding:64px 0;border-top:1px solid var(--line)}
+section:nth-of-type(even){background:linear-gradient(180deg,rgba(11,19,13,.55),transparent 70%)}
+.kicker{color:var(--grn);font-size:12px;letter-spacing:3px;text-transform:uppercase;margin-bottom:10px;text-shadow:var(--glow)}
+.kicker::before{content:"// ";color:var(--grn-dim)}
+h2{font-family:var(--disp);font-size:clamp(26px,4vw,40px);color:var(--white);letter-spacing:-.8px;line-height:1.1;font-weight:700}
+.lead{color:var(--txt-dim);max-width:720px;margin-top:14px;font-size:15.5px}
+.lead b{color:var(--txt)}
+.reveal{opacity:0;transform:translateY(22px);transition:opacity .7s,transform .7s}
+.reveal.in{opacity:1;transform:none}
+
+/* terminal window */
+.term-win{background:#060a07;border:1px solid var(--line);border-radius:9px;overflow:hidden;box-shadow:0 18px 50px rgba(0,0,0,.5);margin-top:26px}
+.term-bar{display:flex;align-items:center;gap:7px;padding:9px 13px;background:#0b130d;border-bottom:1px solid var(--line)}
+.dot{width:11px;height:11px;border-radius:50%}
+.dot.r{background:var(--red)}.dot.y{background:var(--yellow)}.dot.g{background:#27c93f}
+.term-bar .title{margin-left:8px;font-size:11.5px;color:var(--txt-dim)}
+.term-body{padding:16px 18px;font-size:13px;line-height:1.75;white-space:pre-wrap;overflow-x:auto}
+.term-body .c{color:var(--txt-dim)}
+.term-body .ok{color:var(--grn)}.term-body .x{color:var(--red)}.term-body .a{color:var(--amber)}
+.prompt{color:var(--grn)}.prompt::before{content:"❯ ";color:var(--grn-dim)}
+
+/* grid */
+.grid{display:grid;gap:16px;margin-top:26px}
+.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}
+@media(max-width:760px){.g2,.g3{grid-template-columns:1fr}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:18px}
+.card h3{font-family:var(--disp);color:var(--white);font-size:17px;margin-bottom:7px}
+.card p{font-size:13.5px;color:var(--txt-dim)}
+.card .ic{font-size:11px;color:var(--grn);letter-spacing:1px;text-transform:uppercase}
+
+/* architecture diagram */
+.arch{display:grid;grid-template-columns:1fr 64px 1fr;align-items:stretch;gap:0;margin-top:30px}
+@media(max-width:760px){.arch{grid-template-columns:1fr}}
+.node{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px;position:relative}
+.node.fh{border-color:#2a4a63}.node.bh{border-color:var(--grn-deep)}
+.node .lbl{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--grn)}
+.node h4{font-family:var(--disp);color:var(--white);font-size:18px;margin:6px 0 8px}
+.node ul{list-style:none;font-size:12.5px;color:var(--txt-dim)}
+.node li{padding:2px 0;padding-left:14px;position:relative}
+.node li::before{content:"▸";position:absolute;left:0;color:var(--grn-dim)}
+.bus{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--grn);position:relative}
+.bus .pipe{writing-mode:vertical-rl;font-size:10px;letter-spacing:2px;color:var(--grn-dim);text-transform:uppercase}
+@media(max-width:760px){.bus{flex-direction:row;padding:10px 0}.bus .pipe{writing-mode:horizontal-tb}}
+.center-brain{margin-top:18px;background:linear-gradient(180deg,var(--grn-deep),var(--panel));border:1px solid var(--grn-dim);border-radius:10px;padding:18px;text-align:center}
+.center-brain .lbl{color:var(--grn);font-size:11px;letter-spacing:2px;text-transform:uppercase}
+.center-brain h4{font-family:var(--disp);color:var(--white);font-size:20px;margin-top:4px}
+
+/* fleet */
+.fleet{display:flex;flex-wrap:wrap;gap:13px;margin-top:26px}
+.agent{flex:1 1 200px;min-width:180px;background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:15px;cursor:pointer;transition:.18s;position:relative}
+.agent:hover{border-color:var(--grn-dim);transform:translateY(-3px);box-shadow:var(--glow)}
+.agent .live{position:absolute;top:13px;right:13px;font-size:9px;color:var(--grn);letter-spacing:1px}
+.agent .live i{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--grn);box-shadow:var(--glow);margin-right:4px;animation:pulse 1.6s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+.agent .nm{font-family:var(--disp);color:var(--white);font-size:16px;font-weight:700}
+.agent .nm::before{content:"●";color:var(--grn);font-size:10px;margin-right:6px;vertical-align:2px}
+.agent .role{font-size:12px;color:var(--txt-dim);margin-top:5px;min-height:32px}
+.agent .more{font-size:10.5px;color:var(--grn-dim);margin-top:9px;letter-spacing:.5px}
+#agentFeed{margin-top:18px}
+
+/* cost toggle */
+.cost-toggle{display:flex;gap:0;margin-top:24px;border:1px solid var(--line);border-radius:8px;overflow:hidden;width:max-content}
+.cost-toggle button{background:var(--panel);color:var(--txt-dim);border:none;padding:11px 20px;font-family:var(--mono);font-size:13px;cursor:pointer;transition:.15s}
+.cost-toggle button.on{background:var(--grn-deep);color:var(--grn);text-shadow:var(--glow)}
+.cost-panel{margin-top:18px}
+.bigprice{font-family:var(--disp);font-size:clamp(40px,8vw,82px);font-weight:800;letter-spacing:-3px;line-height:1}
+.bigprice.zero{color:var(--grn);text-shadow:var(--glow)}
+.bigprice.metered{color:var(--red)}
+
+/* loop steps */
+.flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px;margin-top:26px}
+.step{flex:1;min-width:150px;background:var(--panel);border:1px solid var(--line);border-radius:9px;padding:14px;position:relative}
+.step .num{font-family:var(--disp);color:var(--grn-dim);font-size:12px}
+.step h4{font-family:var(--disp);color:var(--white);font-size:15px;margin:4px 0}
+.step p{font-size:12px;color:var(--txt-dim)}
+.step::after{content:"→";position:absolute;right:-12px;top:50%;transform:translateY(-50%);color:var(--grn-dim);z-index:2}
+.step:last-child::after{display:none}
+@media(max-width:760px){.step::after{content:"↓";right:50%;top:auto;bottom:-15px;transform:translateX(50%)}}
+
+/* law list */
+.laws{margin-top:24px;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+.law{display:flex;gap:14px;padding:15px 18px;border-bottom:1px solid var(--line);align-items:flex-start}
+.law:last-child{border-bottom:none}
+.law .k{font-family:var(--disp);color:var(--grn);font-weight:700;min-width:30px;text-shadow:var(--glow)}
+.law b{color:var(--white)}
+.law p{font-size:13px;color:var(--txt-dim)}
+
+footer{padding:60px 0 80px;border-top:1px solid var(--line);text-align:center}
+footer .big{font-family:var(--disp);font-size:clamp(22px,3.5vw,34px);color:var(--white)}
+footer .big .g{color:var(--grn);text-shadow:var(--glow)}
+footer .meta{color:var(--txt-dim);font-size:12.5px;margin-top:16px}
+.badge{display:inline-block;border:1px solid var(--line);background:var(--panel);padding:4px 10px;border-radius:5px;font-size:11px;color:var(--txt-dim);margin:3px}
+.badge b{color:var(--grn)}
+</style>
+</head>
+<body data-commit="1781733006">
+
+<!-- BOOT -->
+<div id="boot"><div class="term"><div id="bootlines"></div></div></div>
+
+<nav><div class="wrap">
+  <span class="brand">CONTEXT_HARNESS<b>//jarvis</b></span>
+  <a class="t" href="#arch">architecture</a>
+  <a class="t" href="#cost">cost·$0</a>
+  <a class="t" href="#fleet">fleet</a>
+  <a class="t" href="#harness">always-on</a>
+  <a class="t" href="#loops">loops</a>
+  <a class="t" href="#git">git brain</a>
+  <a class="t" href="#safety">safety</a>
+  <a class="t" href="#proof">proof</a>
+</div></nav>
+
+<header><div class="wrap">
+  <span class="tag">a self-built operating system</span>
+  <h1>I programmed my own<br><span class="g">operating system</span> on Claude.</h1>
+  <p class="sub">Not a chatbot. Not a wrapper. A <b>git repository that is a living memory</b>, a <b>fleet of always-on terminal agents</b>, an <b>autonomous engine that heals itself</b> — and it runs at <b>$0 of metered spend</b>. This is the dissection.</p>
+  <div class="stats">
+    <div class="stat"><div class="n">$0</div><div class="l">metered AI spend, ever</div></div>
+    <div class="stat"><div class="n">24/7</div><div class="l">runs while I sleep · heals itself</div></div>
+    <div class="stat"><div class="n" data-count="7">7</div><div class="l">agents working in parallel</div></div>
+    <div class="stat"><div class="n">live</div><div class="l">in production since Jun 2026</div></div>
+  </div>
+  <p class="sub" style="margin-top:22px;font-size:13px" id="liveline"><span class="grn">●</span> the brain is running right now — last commit <span class="white" id="commitago">moments ago</span>.</p>
+</div></header>
+
+<!-- NORTH STAR / ARCHITECTURE -->
+<section id="arch"><div class="wrap reveal">
+  <div class="kicker">the north star</div>
+  <h2>One brain. Two mouths.</h2>
+  <p class="lead">The whole system is a single <b>brain in git</b> that speaks through two mouths. A <b>voice front-of-house</b> that talks to me and decides, and a <b>back-of-house Mac</b> that executes, files, and heals. Neither shares memory directly — <b>they share the git repo and a Google Drive transport bus.</b> Every agent is stateless: rehydrate from the repo, act, write back, exit. The context window is scratch paper; the repo is memory of record. That is why a cold-start agent can resume the entire system in a single read.</p>
+
+  <div class="arch">
+    <div class="node fh">
+      <div class="lbl">front of house</div>
+      <h4>claude.ai voice Project</h4>
+      <ul>
+        <li>Live connectors: gmail, calendar, drive</li>
+        <li>Talks to me by voice, DECIDES, captures</li>
+        <li>Reads the repo over GitHub — READ ONLY</li>
+        <li>Produces a markdown "dump" → the bus</li>
+      </ul>
+    </div>
+    <div class="bus"><span class="pipe">git · drive bus</span><span style="font-size:20px">⇄</span></div>
+    <div class="node bh">
+      <div class="lbl">back of house · this Mac</div>
+      <h4>Claude Code + the fleet</h4>
+      <ul>
+        <li>Full compute · the ONLY thing that writes git</li>
+        <li>Runs the loop, ingest, heartbeat, healing</li>
+        <li>EXECUTES, files intelligently, self-improves</li>
+        <li>Reachable from phone/laptop (Remote Control)</li>
+      </ul>
+    </div>
+  </div>
+  <div class="center-brain">
+    <div class="lbl">the source of truth</div>
+    <h4>GIT REPO = MEMORY + LAW + MAP OF RECORD</h4>
+    <p class="dim" style="font-size:13px;margin-top:6px">Identity · Vision · People · Projects · Daily · the harness · the laws. Obsidian and any UI are just <i>lenses</i> over it, never second brains.</p>
+  </div>
+</div></section>
+
+<!-- COST -->
+<section id="cost"><div class="wrap reveal">
+  <div class="kicker">the cost model</div>
+  <h2>It runs autonomously, 24/7, for&nbsp;<span class="grn">$0</span>.</h2>
+  <p class="lead">Headless, metered AI calls would bankrupt an always-on system. So the architecture is built around one rule: <b>zero non-subscription spend.</b> Metered <span class="mono">claude -p</span> / Agent SDK is <b>banned</b> — and the ban is enforced <i>mechanically</i>, not by hoping agents behave.</p>
+
+  <div class="cost-toggle">
+    <button class="on" onclick="setCost('zero',this)">my system</button>
+    <button onclick="setCost('metered',this)">the naive way</button>
+  </div>
+  <div class="cost-panel" id="costPanel"></div>
+
+  <div class="grid g2" style="margin-top:30px">
+    <div class="card">
+      <div class="ic">technique 01 · the chokepoint</div>
+      <h3>A PATH-shim gatekeeper</h3>
+      <p>Every execution surface resolves <span class="mono">claude</span> through PATH, and <span class="mono">~/bin</span> is first. A tiny shim sits there, blocks <span class="mono">-p/--print</span>, and passes everything else through untouched. One chokepoint every tool shares — it doesn't care <i>which</i> agent or tool calls claude, they all hit the lock. It even caught a bypass where a worker ran <span class="mono">-p</span> through a different tool's shell.</p>
+    </div>
+    <div class="card">
+      <div class="ic">technique 02 · the split</div>
+      <h3>Two lanes, both on subscription</h3>
+      <p><b class="grn">Interactive</b> work (the fleet, the loop, Workflows) runs in Claude Code on the Max subscription. <b class="amber">Headless</b> inference runs through <b>Codex</b> (<span class="mono">codex exec</span>, signed in with a ChatGPT-Plus sub, sandbox-contained, never prompts). Detection is <b>free bash</b> — a launchd file-glob with no model call until there's real work. Model time is only ever spent on actual work.</p>
+    </div>
+  </div>
+
+  <div class="term-win" style="margin-top:24px">
+    <div class="term-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="title">~/bin/claude — the gatekeeper shim (verbatim)</span></div>
+    <div class="term-body"><span class="c"># enforces zero-metered-spend at the ONE chokepoint every surface shares</span>
+for a in "$@"; do
+  case "$a" in
+    -p|--print|--print=*)
+      echo <span class="x">"BLOCKED: headless 'claude -p' is metered and disabled by policy."</span> >&2
+      echo "        Use 'codex' for headless, or interactive claude." >&2
+      <span class="a">exit 99</span> ;;
+  esac
+done
+<span class="c"># …otherwise find the REAL claude in PATH (skipping itself) and:</span>
+exec "$real" "$@"   <span class="ok"># everything else passes through, untouched</span></div>
+  </div>
+</div></section>
+
+<!-- FLEET -->
+<section id="fleet"><div class="wrap reveal">
+  <div class="kicker">the workforce</div>
+  <h2>A fleet of always-on agents.</h2>
+  <p class="lead">Each agent is a <b>persistent tmux session</b> running an interactive Claude Code — so it survives a closed lid, a quit terminal, a disconnect. They're reachable from my phone. They talk to each other over a hardened <b>cue bus</b>.</p>
+  <p style="margin-top:12px;color:var(--grn);font-size:13px"><span class="cur" style="vertical-align:-1px"></span> click any agent to attach &amp; watch it work</p>
+  <div class="fleet" id="fleetGrid"></div>
+  <div id="agentFeed"></div>
+</div></section>
+
+<!-- ALWAYS ON HARNESS -->
+<section id="harness"><div class="wrap reveal">
+  <div class="kicker">the nervous system</div>
+  <h2>It watches its own vital signs.</h2>
+  <p class="lead">A set of <b>launchd jobs</b> keep the system alive without me babysitting it. Pure bash where possible (so it's $0); the model is only ever <i>summoned</i> on real work, never on a dumb timer. A <b>guardian</b> beats every 10 minutes — it's the clock, the healer, and the summoner.</p>
+  <div class="grid g3">
+    <div class="card"><div class="ic">10 min · the clock</div><h3>guardian</h3><p>Heals a dead <span class="mono">brain</span> session, runs 12 vitals checks, regenerates the phone dashboard, and summons the model <i>only</i> on a due rhythm or an emergency — and only if idle, so it never interrupts live work.</p></div>
+    <div class="card"><div class="ic">on inbox change</div><h3>knowledge-ingest</h3><p>Free bash detects a voice dump → a <b>sandboxed</b> Codex agent (no Bash, no network) routes it into the knowledge base, archives the raw dump, and commits.</p></div>
+    <div class="card"><div class="ic">~06:30 daily</div><h3>heartbeat</h3><p>Gap-scans the brain for what's thin, stale, or unresolved → writes a prioritized <b>morning question set</b> for the voice session. Closes the learning loop.</p></div>
+    <div class="card"><div class="ic">8a · 1p · 8p</div><h3>triage</h3><p>Reads iMessage → a calm brief of real asks and commitments. <b>Read and draft, never send.</b> Fewer calm checkpoints beat constant pings.</p></div>
+    <div class="card"><div class="ic">30 min</div><h3>git-autosync</h3><p>Commits + pushes both repos, <b>secret-scanned</b> (aborts on any key), pull-rebase first. Fixes the drift where an always-on session never pushes on exit.</p></div>
+    <div class="card"><div class="ic">in-session</div><h3>the pulse</h3><p>An aliveness heartbeat inside the brain — daily rhythms, event-awareness, a learning loop, and calm proactive pings. Self-paces on subscription, never metered.</p></div>
+  </div>
+</div></section>
+
+<!-- LOOPS -->
+<section id="loops"><div class="wrap reveal">
+  <div class="kicker">the capture loop</div>
+  <h2>The capture loop.</h2>
+  <p class="lead">I talk. It files itself. Forever. Nothing important ever lives only in a context window — every meaningful change is persisted to a file immediately. <b>Stateless and write-through.</b></p>
+  <div class="flow">
+    <div class="step"><div class="num">01</div><h4>I speak</h4><p>A voice session front-of-house pulls real context out of my head.</p></div>
+    <div class="step"><div class="num">02</div><h4>dump → bus</h4><p>It produces one markdown dump → an inbox (the Mac, or Drive from my phone).</p></div>
+    <div class="step"><div class="num">03</div><h4>ingest</h4><p>A sandboxed agent reads it and routes each piece into the right place in the brain.</p></div>
+    <div class="step"><div class="num">04</div><h4>file + commit</h4><p>Archives the raw dump, commits, pushes. The brain is now permanently smarter.</p></div>
+    <div class="step"><div class="num">05</div><h4>new gaps</h4><p>The next heartbeat finds what's still thin → sharper questions out. The loop closes.</p></div>
+  </div>
+</div></section>
+
+<!-- GIT BRAIN / TWO DEVICE -->
+<section id="git"><div class="wrap reveal">
+  <div class="kicker">the sister setup</div>
+  <h2>The repo is the brain. Every device is a lens.</h2>
+  <p class="lead">The brain lives in two private GitHub repos. The <b>studio Mac is the sole git writer</b> and the engine. A <b>laptop</b> clones the same repos and pulls — same memory, same skills, everywhere. The <b>voice front-of-house reads it over the GitHub connector</b>. GitHub is the spine that lets one brain exist on many machines at once, coherently.</p>
+  <div class="grid g3">
+    <div class="card"><div class="ic">studio mac</div><h3>the engine + sole writer</h3><p>Heavy compute, the fleet, the launchd jobs. The only machine that commits — no two-writer footguns.</p></div>
+    <div class="card"><div class="ic">github · the spine</div><h3>2 private repos = truth</h3><p><span class="mono">claude-knowledge</span> (the brain/KB) + <span class="mono">claude-config</span> (memory + skills + settings). Pushed deliberately, secret-scanned.</p></div>
+    <div class="card"><div class="ic">laptop · phone</div><h3>lenses, not second brains</h3><p>The laptop pulls the same brain. The phone reaches the fleet via Remote Control. Obsidian is a read-only lens.</p></div>
+  </div>
+  <div class="term-win">
+    <div class="term-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="title">resume — any cold-start agent, one read</span></div>
+    <div class="term-body"><span class="prompt">cat START-HERE.md</span>
+<span class="c"># the generated, always-current live map</span>
+<span class="ok">✓</span> active projects, people, recent activity, system health
+<span class="ok">✓</span> what's stale, what's in flight
+<span class="prompt">tail _activity/log.jsonl</span>   <span class="c"># what the system did most recently</span>
+<span class="prompt">cat _health/status.json</span>    <span class="c"># jobs alive? git synced? drive mounted?</span>
+<span class="ok">→ oriented. you ARE the operator, full state cued up.</span></div>
+  </div>
+</div></section>
+
+<!-- SAFETY -->
+<section id="safety"><div class="wrap reveal">
+  <div class="kicker">the laws</div>
+  <h2>Autonomy, earned through proof — not hope.</h2>
+  <p class="lead">An always-on system with real powers needs hard rules. These are enforced by construction, not vibes.</p>
+  <div class="laws">
+    <div class="law"><span class="k">01</span><div><b>Untrusted input is sandboxed.</b><p>Voice dumps are semi-trusted data. The ingest agent that touches them has no Bash and no network — it treats dump contents as DATA, never instructions. Proven injection-resistant.</p></div></div>
+    <div class="law"><span class="k">02</span><div><b>Draft, never send.</b><p>Capture is automatic. <i>Action</i> gets a held breath — email, publishing, deletes are drafted for one-tap approval. Reversible/inward actions stay ungated.</p></div></div>
+    <div class="law"><span class="k">03</span><div><b>The repo is the one source of truth.</b><p>The Mac is the sole git writer. Every meaningful change is persisted immediately. No critical state lives only in a context window — which is why resume always works.</p></div></div>
+    <div class="law"><span class="k">04</span><div><b>Self-improving, never self-corrupting.</b><p>Agents that touch untrusted input may <i>propose</i> improvements but cannot rewrite their own code. Every self-change appends to an immutable ledger — no silent evolution.</p></div></div>
+  </div>
+</div></section>
+
+<!-- PROOF -->
+<section id="proof"><div class="wrap reveal">
+  <div class="kicker">it's not a demo — it does real work</div>
+  <h2>What it actually ships.</h2>
+  <p class="lead">The system replaces real weekend labor with agents that do exactly what I do — my protocols, my taste, my cut cues — and it gets sharper every week.</p>
+  <div class="grid g2">
+    <div class="card"><div class="ic">design.agent</div><h3>Reproduced a designer's thumbnail, indistinguishably</h3><p>From raw 4K photos it learned my designer's exact style — her real PSD textures, her cutout method, her grade, her tracked title — and recreated her actual thumbnail near-perfectly, driven by a ruthless multi-agent diff-judge loop. The whole method is banked as a repeatable skill.</p></div>
+    <div class="card"><div class="ic">the weekend crew, automated</div><h3>Film → edit → caption → upload</h3><p>Sermon + podcast pipelines: on-device transcription, a multi-agent cut-confidence audit that replaces my visual confirm, deterministic renders, and auto-publish to YouTube/Spotify/Slack — all $0, no metered calls.</p></div>
+    <div class="card"><div class="ic">always-listening</div><h3>Captures everything I dump, by voice</h3><p>A morning question set finds my blind spots; I answer by voice; it files into the brain and surfaces the next gap. The system compounds while I sleep.</p></div>
+    <div class="card"><div class="ic">heals itself</div><h3>Watches its own vital signs</h3><p>A guardian beats every 10 minutes, resurrects dead agents, pushes a live health dashboard to my phone, and only wakes the model when there's genuinely something to do.</p></div>
+  </div>
+</div></section>
+
+<footer><div class="wrap reveal">
+  <p class="big">Built on <span class="g">Claude</span>. Programmed by Ethan.</p>
+  <p class="meta">One brain in git that speaks through two mouths · that any cold-start agent resumes in a single read · that captures everything, acts safely, watches its own vital signs, and gets better every week.</p>
+  <p class="meta" style="margin-top:14px"><span class="grn">$</span> built by <b class="white">Ethan Ormeo</b> — videographer &amp; creative-systems builder @ Red Rocks Church / ATX Creative · <span class="grn">in production since June 2026</span>, running right now.</p>
+  <div style="margin-top:18px">
+    <span class="badge"><b>$0</b> metered</span>
+    <span class="badge">tmux fleet</span>
+    <span class="badge">codex · ChatGPT-Plus headless</span>
+    <span class="badge">git = memory of record</span>
+    <span class="badge">launchd · always-on</span>
+    <span class="badge">self-healing</span>
+    <span class="badge">draft-never-send</span>
+  </div>
+</div></footer>
+
+<script>
+// ===== BOOT SEQUENCE =====
+const bootSeq=[
+ ["<span class='dim'>CONTEXT_HARNESS BIOS v4.8 — initializing…</span>",90],
+ ["mounting git brain ......................... <span class='grn'>OK</span>",120],
+ ["mounting google-drive transport bus ........ <span class='grn'>OK</span>",120],
+ ["loading cost gatekeeper [~/bin/claude] ..... <span class='grn'>ARMED</span>",140],
+ ["  └─ metered <span class='amber'>claude -p</span> ............... <span style='color:#ff5f56'>BLOCKED</span>",140],
+ ["spawning fleet: brain editor editor2 ......",90],
+ ["               uploads comms producer design <span class='grn'>7 LIVE</span>",150],
+ ["guardian heartbeat .......................... <span class='grn'>BEATING</span>",130],
+ ["self-test: stateless + write-through ........ <span class='grn'>PASS</span>",150],
+ ["",120],
+ ["<span class='grn'>SYSTEM ONLINE.</span> you are the operator.",260],
+];
+(function(){
+ const box=document.getElementById('bootlines'); let i=0;
+ function next(){
+   if(i>=bootSeq.length){ setTimeout(()=>{document.getElementById('boot').classList.add('hide');document.body.style.overflow='';startCounts();},520); return; }
+   const [txt,d]=bootSeq[i]; const el=document.createElement('div'); el.className='ln';
+   el.innerHTML=(txt?("<span class='prompt'></span>"+txt):"")+"<span class='cur'></span>"; box.appendChild(el);
+   requestAnimationFrame(()=>{el.style.transition='opacity .12s';el.style.opacity='1';});
+   const prev=box.children[i-1]; if(prev){const c=prev.querySelector('.cur'); if(c)c.remove();}
+   i++; setTimeout(next,d);
+ }
+ document.body.style.overflow='hidden'; setTimeout(next,400);
+})();
+
+// ===== LIVE "last commit" pulse (epoch baked at publish) =====
+(function(){
+ const el=document.getElementById('commitago'); if(!el)return;
+ const ep=parseInt(document.body.dataset.commit||'0',10);
+ function rel(){ if(!ep){el.textContent='moments ago';return;}
+   let s=Math.max(60,Math.floor(Date.now()/1000)-ep);
+   const h=Math.floor(s/3600), m=Math.floor((s%3600)/60);
+   el.textContent = h>0 ? `${h}h ${m}m ago` : `${m}m ago`;
+ } rel(); setInterval(rel,30000);
+})();
+// ===== COUNT-UP =====
+function startCounts(){
+ document.querySelectorAll('.n[data-count]').forEach(el=>{
+   const t=+el.dataset.count; let c=0; const step=Math.max(1,Math.floor(t/40));
+   const iv=setInterval(()=>{c+=step; if(c>=t){c=t;clearInterval(iv)} el.textContent=c;},22);
+ });
+}
+
+// ===== REVEAL ON SCROLL =====
+const io=new IntersectionObserver((es)=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')}),{threshold:.12});
+document.querySelectorAll('.reveal').forEach(r=>io.observe(r));
+
+// ===== COST PANEL =====
+const costs={
+ zero:{price:"$0",cls:"zero",lines:[
+   ["interactive fleet + Workflows","Max subscription","ok"],
+   ["headless inference","Codex · ChatGPT-Plus sub","ok"],
+   ["detection / watchers","free bash · no model call","ok"],
+   ["metered claude -p / SDK","blocked at the shim","x"],
+ ],note:"Always-on, autonomous, a whole fleet — and the meter never moves."},
+ metered:{price:"$2k+",cls:"metered",lines:[
+   ["every headless agent call","metered API rate","x"],
+   ["every watcher poll that wakes a model","metered","x"],
+   ["a 24/7 fleet of agents","metered × always-on","x"],
+   ["one runaway loop","a very bad invoice","x"],
+ ],note:"This is what an always-on AI system costs if you don't engineer around it."}
+};
+function setCost(k,btn){
+ document.querySelectorAll('.cost-toggle button').forEach(b=>b.classList.remove('on'));
+ if(btn)btn.classList.add('on');
+ const c=costs[k]; const p=document.getElementById('costPanel');
+ p.innerHTML=`<div class="bigprice ${c.cls}">${c.price}<span style="font-size:18px;letter-spacing:0;color:var(--txt-dim)"> / month metered</span></div>
+ <div class="term-win" style="margin-top:16px"><div class="term-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="title">cost ledger</span></div>
+ <div class="term-body">${c.lines.map(l=>`<span class="prompt"></span>${l[0].padEnd(34,' ')} <span class="${l[2]}">${l[2]==='ok'?'$0 ✓':'METERED ✗'}</span>  <span class="c">${l[1]}</span>`).join('\n')}
+\n<span class="${c.cls==='zero'?'ok':'x'}">→ ${c.note}</span></div></div>`;
+}
+setCost('zero',null);
+
+// ===== FLEET =====
+const agents=[
+ {nm:"brain",role:"The interactive hub. The console I talk to. Orchestrates everything, the only one I steer directly.",feed:["❯ /refresh — pulling brain","✓ 3 memory files updated by the fleet","❯ designing the system showcase…","✓ heartbeat: 8 morning questions written"]},
+ {nm:"editor",role:"DaVinci Resolve editor. Cuts the full sermon + podcast episodes, my exact protocol.",feed:["❯ /sermon-edit 061426.mp4","✓ transcribed on-device (mlx-whisper)","✓ 3-agent cut-confidence audit → consensus","✓ rendered +12dB / limit / videotoolbox"]},
+ {nm:"editor2",role:"Second editor lane — reels, stories, motion graphics, color.",feed:["❯ build EP135 value-reels","✓ 6 lenses → advocate/skeptic argue","✓ 7 reels, A/V sync gate passed","✓ delivered to #3thangpt"]},
+ {nm:"uploads",role:"Publishes everywhere — YouTube, Spotify, TikTok, Slack. Schedules, playlists, metadata.",feed:["❯ publish EP135","✓ YouTube scheduled Thu 8am (--publish-at)","✓ Spotify draft staged","✓ posted to Slack as 3thGPT bot"]},
+ {nm:"comms",role:"The Slack airlock. Reads the team channels, gathers the weekend pieces. Trusted-internal only.",feed:["❯ recon #wex-upload","✓ parsed speaker / series / week","✓ origin:external · regex whitelist","→ dispatched via the cue bus"]},
+ {nm:"producer",role:"Production lane — the Bryan Callen pitch, bigger creative projects.",feed:["❯ prep production deck","✓ scope + treatment drafted","→ held for Ethan's GO","✓ nothing sent (draft-gate)"]},
+ {nm:"design",role:"The designer. Learns a designer's DNA and reproduces it — thumbnails, brand, decks, UI.",feed:["❯ recreate EP135 thumbnail","✓ foreground gate keeps the mic, drops the desk","✓ her real PSD wood + grain + wordmark","✓ ruthless judge loop → near-indistinguishable"]},
+];
+const fleetEl=document.getElementById('fleetGrid');
+agents.forEach((a,i)=>{
+ const d=document.createElement('div'); d.className='agent'; d.onclick=()=>showFeed(i,d);
+ d.innerHTML=`<span class="live"><i></i>LIVE</span><div class="nm">${a.nm}</div><div class="role">${a.role}</div><div class="more">▸ tail session</div>`;
+ fleetEl.appendChild(d);
+});
+let feedTimer;
+function showFeed(i,el){
+ document.querySelectorAll('.agent').forEach(a=>a.style.borderColor='');
+ el.style.borderColor='var(--grn-dim)';
+ const a=agents[i]; const box=document.getElementById('agentFeed'); clearInterval(feedTimer);
+ box.innerHTML=`<div class="term-win"><div class="term-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="title">tmux attach -t ${a.nm}  ·  ${a.nm}.agent</span></div><div class="term-body" id="feedBody"></div></div>`;
+ const body=document.getElementById('feedBody'); let l=0;
+ function line(){ if(l>=a.feed.length){body.innerHTML+="\n<span class='cur'></span>";return;}
+   const t=a.feed[l]; const cls=t.startsWith('✓')?'ok':t.startsWith('→')?'a':'';
+   body.innerHTML+=(l?'\n':'')+`<span class="${cls}">${t.replace('❯','<span class=prompt></span>')}</span>`; l++; feedTimer=setTimeout(line,420);
+ } line(); box.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+showFeed(0,fleetEl.children[0]);
+</script>
+</body>
+</html>
