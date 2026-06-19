@@ -159,6 +159,30 @@ footer .big .g{color:var(--grn);text-shadow:var(--glow)}
 footer .meta{color:var(--txt-dim);font-size:12.5px;margin-top:16px}
 .badge{display:inline-block;border:1px solid var(--line);background:var(--panel);padding:4px 10px;border-radius:5px;font-size:11px;color:var(--txt-dim);margin:3px}
 .badge b{color:var(--grn)}
+
+/* arsenal */
+.arsh{font-family:var(--disp);color:var(--white);font-size:18px;margin-top:34px}
+.cat{margin-top:26px}
+.cat .ct{font-family:var(--disp);color:var(--grn);font-size:13px;letter-spacing:1.5px;text-transform:uppercase;text-shadow:var(--glow);display:flex;align-items:center;gap:8px}
+.cat .ct::before{content:"▸";color:var(--grn-dim)}
+.cat .ct .ci{margin-left:auto;color:var(--txt-dim);font-size:11px;letter-spacing:1px;text-transform:none}
+.skills-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:13px}
+@media(max-width:760px){.skills-grid{grid-template-columns:1fr}}
+.skill{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:13px 15px;transition:.16s;position:relative}
+.skill:hover{border-color:var(--grn-dim);transform:translateY(-2px);box-shadow:var(--glow)}
+.skill .sn{font-family:var(--mono);color:var(--white);font-size:13.5px;font-weight:700}
+.skill .sn b{color:var(--grn-dim)}
+.skill .sd{font-size:12px;color:var(--txt-dim);margin-top:5px;line-height:1.5;max-width:94%}
+.skill .ct-pill{position:absolute;top:11px;right:12px;font-size:9.5px;color:var(--grn);border:1px solid var(--grn-dim);padding:1px 7px;border-radius:10px;letter-spacing:.5px;font-family:var(--disp);font-weight:700}
+.board{margin-top:16px;border:1px solid var(--line);border-radius:9px;background:var(--panel);padding:16px 20px}
+.bar-row{display:grid;grid-template-columns:158px 1fr 40px;align-items:center;gap:12px;padding:6px 0}
+@media(max-width:600px){.bar-row{grid-template-columns:118px 1fr 34px}}
+.bar-row .bl{font-family:var(--mono);font-size:12.5px;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-row .bl b{color:var(--grn-dim)}
+.bar-track{height:13px;background:#0a130d;border:1px solid var(--line);border-radius:7px;overflow:hidden}
+.bar-fill{height:100%;width:0;background:linear-gradient(90deg,var(--grn-deep),var(--grn));box-shadow:var(--glow);border-radius:7px;transition:width 1.1s cubic-bezier(.2,.8,.2,1)}
+.bar-row .bv{font-family:var(--disp);font-size:14px;color:var(--grn);text-align:right;font-weight:700}
+.board .cap{font-size:11px;color:var(--txt-dim);margin-top:13px;line-height:1.5}
 </style>
 </head>
 <body data-commit="1781733006">
@@ -172,6 +196,7 @@ footer .meta{color:var(--txt-dim);font-size:12.5px;margin-top:16px}
   <a class="t" href="#cost">cost·$0</a>
   <a class="t" href="#fleet">fleet</a>
   <a class="t" href="#harness">always-on</a>
+  <a class="t" href="#arsenal">arsenal</a>
   <a class="t" href="#loops">loops</a>
   <a class="t" href="#git">git brain</a>
   <a class="t" href="#safety">safety</a>
@@ -293,6 +318,42 @@ exec "$real" "$@"   <span class="ok"># everything else passes through, untouched
   </div>
 </div></section>
 
+<!-- ARSENAL -->
+<section id="arsenal"><div class="wrap reveal">
+  <div class="kicker">the arsenal</div>
+  <h2>A library of skills I built.</h2>
+  <p class="lead">Every repeatable thing I do, codified once into a <b>skill the fleet can run</b> — my exact protocols, reused forever. Cut a sermon, recreate my designer's thumbnail, grab podcast stills, publish everywhere, bank a session to memory. <b>18 skills</b> riding on an <b>always-on tool registry</b> — every one $0, invoked by a slash command or my voice.</p>
+
+  <div class="stats" style="margin-top:28px">
+    <div class="stat"><div class="n" data-count="18">18</div><div class="l">skills I built</div></div>
+    <div class="stat"><div class="n" data-count="11">11</div><div class="l">always-on jobs &amp; watchers</div></div>
+    <div class="stat"><div class="n" data-count="8">8</div><div class="l">standalone systems</div></div>
+    <div class="stat"><div class="n">$0</div><div class="l">every one, on subscription</div></div>
+  </div>
+
+  <h3 class="arsh">▸ most-invoked skills <span class="dim" style="font-size:12px;font-weight:400">· counted from the session logs</span></h3>
+  <div class="board" id="leaderboard"></div>
+
+  <div id="skillGrid"></div>
+
+  <div class="term-win" style="margin-top:28px">
+    <div class="term-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="title">launchctl list | grep ethan — the always-on registry</span></div>
+    <div class="term-body"><span class="prompt">launchctl list | grep -E 'ethan|rra'</span>
+<span class="ok">●</span> com.ethan.guardian <span class="c">· every 10m · clock · healer · summoner</span>
+<span class="ok">●</span> com.ethan.git-autosync <span class="c">· every 30m · both repos · secret-scanned</span>
+<span class="ok">●</span> com.ethan.knowledge-ingest <span class="c">· on change · voice dump → KB (sandboxed)</span>
+<span class="ok">●</span> com.ethan.knowledge-heartbeat <span class="c">· ~06:30 · the morning question set</span>
+<span class="ok">●</span> com.ethan.knowledge-triage <span class="c">· 8a·1p·8p · iMessage → a calm brief</span>
+<span class="ok">●</span> com.ethan.brain-session <span class="c">· at login · recreates the brain hub</span>
+<span class="ok">●</span> com.ethan.wknd-template <span class="c">· Sun 6:15a · builds the weekend edit folder</span>
+<span class="ok">●</span> com.ethan.social-footage-watcher <span class="c">· 120s · footage dropzone → edit folder</span>
+<span class="ok">●</span> com.ethan.eink-portal <span class="c">· always · e-ink LAN reader :8080</span>
+<span class="ok">●</span> com.ethan.eink-publish <span class="c">· 20s · publishes the daily card</span>
+<span class="ok">●</span> com.rra.sermon-watcher <span class="c">· 60s · the sermon publish portal</span>
+<span class="ok">→ 11 always-on jobs · free bash detection · the model is only summoned on real work · $0</span></div>
+  </div>
+</div></section>
+
 <!-- LOOPS -->
 <section id="loops"><div class="wrap reveal">
   <div class="kicker">the capture loop</div>
@@ -365,6 +426,7 @@ exec "$real" "$@"   <span class="ok"># everything else passes through, untouched
     <span class="badge">codex · ChatGPT-Plus headless</span>
     <span class="badge">git = memory of record</span>
     <span class="badge">launchd · always-on</span>
+    <span class="badge"><b>18</b> skills built</span>
     <span class="badge">self-healing</span>
     <span class="badge">draft-never-send</span>
   </div>
@@ -475,6 +537,48 @@ function showFeed(i,el){
  } line(); box.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 showFeed(0,fleetEl.children[0]);
+
+// ===== ARSENAL =====
+(function(){
+ const board=[["checkpoint",19],["fleet",5],["afterthoughts-stills",4],["refresh",3],["sermon-reels",2],["afterthoughts-reels",1]];
+ const bmax=19, lb=document.getElementById('leaderboard');
+ if(lb){
+  lb.innerHTML=board.map(b=>`<div class="bar-row"><div class="bl"><b>/</b>${b[0]}</div><div class="bar-track"><div class="bar-fill" data-pct="${Math.round(b[1]/bmax*100)}"></div></div><div class="bv">${b[1]}</div></div>`).join('')
+   +`<div class="cap">▸ slash + skill-tool invocations across 1,600+ session transcripts. The build-heavy creative skills (thumbnail, sermon-edit) run via scripts and the fleet, so they under-count here.</div>`;
+  const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.querySelectorAll('.bar-fill').forEach(f=>f.style.width=f.dataset.pct+'%');obs.unobserve(e.target);}}),{threshold:.25});
+  obs.observe(lb);
+ }
+ const cats=[
+  ["Afterthoughts podcast","4 skills",[
+   ["afterthoughts-edit","Full multicam episode edit in DaVinci — conform by source-TC, AutoPod cut, cold-open hook, intro bumper, −15dB music bed, transcript.",0],
+   ["afterthoughts-reels","Builds the Instagram Reels timeline from an episode — transcript-driven selection protocol + multicam assembly.",1],
+   ["afterthoughts-stills","The best genuine-smile, eyes-open, no-blur 4K stills per person for Kayla's thumbnails — a strict vision-graded rubric.",4],
+   ["afterthoughts-thumbnail","Recreates Kayla's exact thumbnail style from raw photos — subject cutouts that keep the mic, her real PSD textures, grade, tracked title.",0]
+  ]],
+  ["Sunday service · RRC","5 skills",[
+   ["sermon-edit","Cuts a raw sermon end to end — on-device transcribe, a multi-agent cut-confidence audit that replaces my visual confirm, deterministic render.",0],
+   ["sermon-reels","Pulls the N best standalone reels from a sermon timeline — each its own layer-aligned timeline, auto-captioned.",2],
+   ["baptism-captions","Bilingual EN+ES captions on baptism-testimony timelines — DaVinci transcribe + Mexican-Spanish in the exact RRA subtitle style.",0],
+   ["out-of-context","Branded social cuts from Sunday captures — a funny 'out of context' compilation or a single clip, face-tracked 9:16, word-synced captions.",0],
+   ["shuddle-story","The weekly FOMO pre-service staff-huddle IG story — sub-1-min 9:16, BEANZ grade, locked caption style, brand bug.",0]
+  ]],
+  ["Brand · social · utility","3 skills",[
+   ["social-analytics-brief","Turns social performance data into an interactive multi-page HTML brief — baseline-scored breakouts, retention curves, a dated action list.",0],
+   ["donor","Recall (and bank) brand-ready 'donor' elements — looks, captions, timelines, grain, templates — from the canonical donor library.",0],
+   ["resolve-timeline-export","One-command word-level SRT + FCP7 XML from any DaVinci timeline — frame-accurate, for cutting and reframing.",0]
+  ]],
+  ["The fleet · memory · comms","6 skills",[
+   ["checkpoint","Writes the whole session through to memory before compaction — routes every durable fact to its home, then commits. The outbound sync.",19],
+   ["refresh","Re-ups a long session with what other sessions, jobs, or devices wrote — pulls the brain, surfaces and reads the changes. The inbound sync.",3],
+   ["alive","The brain's pulse — a proactive-assistant heartbeat: daily rhythms, event-awareness, a learning loop, calm phone pings. Self-paced, never metered.",0],
+   ["fleet","Musters the whole tmux agent fleet — opens or re-attaches a terminal per agent so I can talk to each one.",5],
+   ["cue","The cross-agent cue bus — one fleet agent hands work to another over a hardened append-only ledger, without derailing it.",1],
+   ["comms","The Slack airlock — reads the team channels, gathers the weekend pieces, dispatches to the fleet. Trusted-internal, draft-never-send.",0]
+  ]]
+ ];
+ const sg=document.getElementById('skillGrid');
+ if(sg){ sg.innerHTML=cats.map(c=>`<div class="cat"><div class="ct">${c[0]}<span class="ci">${c[1]}</span></div><div class="skills-grid">${c[2].map(s=>`<div class="skill">${s[2]?`<span class="ct-pill">×${s[2]}</span>`:''}<div class="sn"><b>/</b>${s[0]}</div><div class="sd">${s[1]}</div></div>`).join('')}</div></div>`).join(''); }
+})();
 </script>
 </body>
 </html>
