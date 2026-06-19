@@ -251,6 +251,13 @@ footer .meta{color:var(--txt-dim);font-size:12.5px;margin-top:16px}
 .d-verdict{margin-top:10px;font-family:var(--disp);font-size:16px;color:var(--grn);text-shadow:var(--glow);opacity:0;transition:.6s}
 .d-verdict.show{opacity:1}
 .d-verdict .vs{font-size:30px;font-weight:800;margin-left:8px}
+/* real video layering inside the demo app frames */
+.d-screen video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+.d-screen::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(4,9,6,.5),rgba(4,9,6,.12) 42%,rgba(4,9,6,.62))}
+.d-screen .d-screentag,.d-screen .d-timecode{z-index:2}
+.d-phone video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+.d-phone .d-phonegrade{z-index:1;opacity:.7}
+.d-phone .d-brandbug,.d-phone .d-cc{z-index:2}
 </style>
 </head>
 <body data-commit="1781733006">
@@ -501,7 +508,7 @@ exec "$real" "$@"   <span class="ok"># everything else passes through, untouched
     <div class="d-panel">
       <div class="d-app">
         <div class="d-appbar"><span class="d-pad">control.resi.io / webplayer</span><span class="d-livebadge">● LIVE</span></div>
-        <div class="d-screen"><div class="d-screentag">RED ROCKS AUSTIN — SUNDAY 11:00A</div><div class="d-timecode" id="resiTC">00:14:02</div></div>
+        <div class="d-screen"><video src="media/service.mp4" autoplay muted loop playsinline></video><div class="d-screentag">RED ROCKS AUSTIN — SUNDAY 11:00A</div><div class="d-timecode" id="resiTC">00:14:02</div></div>
         <div class="d-segbar"><div class="d-seglabel">DASH segments — walked off the live manifest, stream never interrupted</div><div class="d-segs" id="resiSegs"></div><div class="d-segstat" id="resiStat">418 segments · 14:02 captured</div></div>
       </div>
       <p class="d-cap">It records the live stream <b>straight off the player</b> — grabbing it segment by segment as it airs, even while the service is <i>still going</i>. No waiting on an upload, an export, or anyone handing me a file.</p>
@@ -522,7 +529,7 @@ exec "$real" "$@"   <span class="ok"># everything else passes through, untouched
 
     <div class="d-panel">
       <div class="d-out">
-        <div class="d-phone"><div class="d-phonegrade"></div><div class="d-brandbug">FOMO</div><div class="d-cc" id="ccLine"></div></div>
+        <div class="d-phone"><video src="media/reel_c0625.mp4" autoplay muted loop playsinline></video><div class="d-phonegrade"></div><div class="d-brandbug">FOMO</div><div class="d-cc" id="ccLine"></div></div>
         <div class="d-render">
           <div class="d-rendline ok">✓ paired multicam · clean board audio over the camera angle</div>
           <div class="d-rendline ok">✓ 9:16 reframe · BEANZ grade baked in</div>
