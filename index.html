@@ -225,8 +225,8 @@ footer .meta{color:var(--txt-dim);font-size:12.5px;margin-top:16px}
 .d-out{display:flex;gap:20px;flex-wrap:wrap;align-items:center}
 .d-phone{width:150px;height:266px;flex:none;border-radius:16px;border:1px solid var(--line);position:relative;overflow:hidden;background:#05100b}
 .d-phonegrade{position:absolute;inset:0;background:linear-gradient(160deg,rgba(255,180,84,.22),rgba(13,58,38,.5) 55%,rgba(5,16,11,.92)),radial-gradient(ellipse at 50% 32%,rgba(255,200,120,.18),transparent 55%)}
-.d-brandbug{position:absolute;top:12px;left:0;right:0;text-align:center;font-family:var(--disp);font-weight:800;font-size:13px;letter-spacing:3px;color:#fff;opacity:.92}
-.d-cc{position:absolute;bottom:24px;left:10px;right:10px;text-align:center;font-family:var(--disp);font-weight:800;font-size:17px;line-height:1.15;color:#fff;text-shadow:0 2px 8px #000;min-height:42px}
+.d-brandbug{position:absolute;top:12px;left:0;right:0;text-align:center;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-weight:700;font-size:11px;letter-spacing:2px;color:#fff;opacity:.82}
+.d-cc{position:absolute;bottom:24px;left:10px;right:10px;text-align:center;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-weight:700;font-size:17px;letter-spacing:-.3px;line-height:1.12;color:#fff;text-shadow:0 2px 8px #000;min-height:42px}
 .d-cc b{color:var(--grn)}
 .d-render{flex:1;min-width:240px;display:flex;flex-direction:column;justify-content:center;gap:9px}
 .d-rendline{font-family:var(--mono);font-size:13px;opacity:0;transform:translateX(-8px);transition:.4s}
@@ -258,6 +258,48 @@ footer .meta{color:var(--txt-dim);font-size:12.5px;margin-top:16px}
 .d-phone video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
 .d-phone .d-phonegrade{z-index:1;opacity:.7}
 .d-phone .d-brandbug,.d-phone .d-cc{z-index:2}
+/* demo 3 — sermon cut audit */
+.d-split{display:grid;grid-template-columns:1fr 1fr;gap:0}
+@media(max-width:680px){.d-split{grid-template-columns:1fr}}
+.d-half{padding:14px 16px}
+.d-half+.d-half{border-left:1px solid var(--line)}
+@media(max-width:680px){.d-half+.d-half{border-left:none;border-top:1px solid var(--line)}}
+.d-half video{width:100%;border-radius:7px;border:1px solid var(--line);display:block;background:#000}
+.d-halflbl{font-size:10.5px;letter-spacing:1px;text-transform:uppercase;color:var(--txt-dim);margin-bottom:8px}
+/* demo 4 — youtube/spotify publish */
+.yt{display:grid;grid-template-columns:300px 1fr;gap:16px;padding:16px}
+@media(max-width:680px){.yt{grid-template-columns:1fr}}
+.yt-thumb{position:relative;border-radius:8px;overflow:hidden;border:1px solid var(--line);align-self:start}
+.yt-thumb img{width:100%;display:block}
+.yt-dur{position:absolute;bottom:7px;right:7px;background:rgba(0,0,0,.82);color:#fff;font-size:11px;font-family:var(--mono);padding:1px 6px;border-radius:4px}
+.yt-form{display:flex;flex-direction:column;gap:11px;justify-content:center}
+.yt-field{border:1px solid var(--line);border-radius:7px;background:#060a07;padding:9px 12px}
+.yt-k{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--grn-dim);margin-bottom:3px}
+.yt-v{font-size:13px;color:var(--txt);font-family:var(--mono);min-height:18px}
+.yt-sched{color:var(--grn)}
+.yt-bar{height:8px;border-radius:5px;background:#0a130d;border:1px solid var(--line);overflow:hidden}
+.yt-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--grn-deep),var(--grn));box-shadow:var(--glow);transition:width .2s}
+.yt-plats{display:flex;gap:8px;flex-wrap:wrap}
+.yt-plat{font-family:var(--mono);font-size:11px;color:var(--txt-dim);border:1px solid var(--line);border-radius:20px;padding:3px 10px;transition:.3s}
+.yt-plat.done{color:var(--grn);border-color:var(--grn-dim);text-shadow:var(--glow)}
+/* demo 5 — ffmpeg reel factory */
+.ff{display:grid;grid-template-columns:1fr 132px;gap:16px;padding:16px}
+@media(max-width:680px){.ff{grid-template-columns:1fr}}
+.ff-time{display:flex;flex-direction:column;gap:8px}
+.ff-track{position:relative;height:30px;border-radius:5px;border:1px solid var(--line);background:#0a130d;overflow:hidden;display:flex;align-items:center;padding:0 8px}
+.ff-track .tk{font-family:var(--mono);font-size:10px;color:var(--txt-dim);letter-spacing:1px;z-index:2}
+.ff-vid{background:repeating-linear-gradient(90deg,#0e2a22,#0e2a22 22px,#0c2030 22px,#0c2030 24px)}
+.ff-wave{display:flex;align-items:center;gap:2px;height:30px;width:100%}
+.ff-wave i{flex:1;background:var(--grn-dim);opacity:.5;border-radius:1px}
+.ff-play{position:absolute;top:0;bottom:0;width:2px;background:var(--grn);box-shadow:var(--glow);left:2%;animation:ffsweep 3.2s linear infinite}
+@keyframes ffsweep{from{left:2%}to{left:98%}}
+.ff-steps{display:flex;flex-direction:column;gap:7px;margin-top:4px}
+.ff-step{font-family:var(--mono);font-size:12px;color:var(--txt-dim);opacity:.5;transition:.3s}
+.ff-step.on{color:var(--grn);opacity:1}
+.ff-step b{color:var(--grn-dim);margin-right:4px}
+.ff-out video{width:100%;border-radius:12px;border:1px solid var(--line);display:block;background:#000}
+.ff-cmd{font-family:var(--mono);font-size:11px;color:var(--txt-dim);background:#060a07;border:1px solid var(--line);border-radius:7px;padding:9px 11px;white-space:pre-wrap;line-height:1.55;grid-column:1/-1}
+.ff-cmd .fl{color:var(--grn)}
 </style>
 </head>
 <body data-commit="1781733006">
@@ -529,10 +571,10 @@ exec "$real" "$@"   <span class="ok"># everything else passes through, untouched
 
     <div class="d-panel">
       <div class="d-out">
-        <div class="d-phone"><video src="media/reel_c0625.mp4" autoplay muted loop playsinline></video><div class="d-phonegrade"></div><div class="d-brandbug">FOMO</div><div class="d-cc" id="ccLine"></div></div>
+        <div class="d-phone"><video src="media/reel_c0625.mp4" autoplay muted loop playsinline></video><div class="d-phonegrade"></div><div class="d-brandbug">REEL</div><div class="d-cc" id="ccLine"></div></div>
         <div class="d-render">
           <div class="d-rendline ok">✓ paired multicam · clean board audio over the camera angle</div>
-          <div class="d-rendline ok">✓ 9:16 reframe · BEANZ grade baked in</div>
+          <div class="d-rendline ok">✓ 9:16 reframe · the brand grade baked in</div>
           <div class="d-rendline ok">✓ word-synced captions · brand bug</div>
           <div class="d-rendline a">→ posted to #atx-content · 47s after the moment happened</div>
         </div>
@@ -541,16 +583,68 @@ exec "$real" "$@"   <span class="ok"># everything else passes through, untouched
     </div>
   </div>
 
-  <h3 class="arsh" style="margin-top:40px">▸ and the part Kayla asked for: her style, recreated from raw photos</h3>
+  <h3 class="arsh" style="margin-top:40px">▸ and the part my designer asked for: her style, recreated from raw photos</h3>
   <div class="demo" id="thumbDemo">
-    <div class="d-showstrip"><video src="media/bumper.mp4" autoplay muted loop playsinline></video><span><b>Afterthoughts</b> — the weekly podcast. Every episode needs a thumbnail in my designer Kayla's exact style. The system learned that style from her own files and rebuilds it from the raw episode photos.</span></div>
+    <div class="d-showstrip"><video src="media/bumper.mp4" autoplay muted loop playsinline></video><span><b>Afterthoughts</b> — the weekly podcast. Every episode needs a thumbnail in my designer's exact style. The system learned that style from her own files and rebuilds it from the raw episode photos.</span></div>
     <div class="d-thumbwrap">
-      <div class="d-thumb"><span class="d-tl">Kayla's original</span><img src="media/ep135_kayla.jpg" loading="lazy" alt="Kayla's actual EP135 thumbnail"></div>
+      <div class="d-thumb"><span class="d-tl">the designer's original</span><img src="media/ep135_kayla.jpg" loading="lazy" alt="the designer's actual thumbnail"></div>
       <div class="d-vs">vs</div>
       <div class="d-thumb"><span class="d-tl grn">design.agent · rebuilt from photos</span><img src="media/ep135_recreation.jpg" loading="lazy" alt="design.agent recreation of the thumbnail"></div>
     </div>
     <div class="d-judge" id="thumbJudge"></div>
-    <p class="d-cap">Left is Kayla's real thumbnail. Right is what the system built from the <b>raw episode photos</b> — her exact wood texture, cutouts that keep each person's own mic, the warm grade, the cream title at her tracking. A <b>ruthless panel of judge agents</b> scores the rebuild against the original and fixes one thing at a time until it's <b>indistinguishable</b>. Her taste, codified — so the easy version of her work does itself, and she spends her time on what only she can do.</p>
+    <p class="d-cap">Left is my designer's real thumbnail. Right is what the system built from the <b>raw episode photos</b> — her exact wood texture, cutouts that keep each person's own mic, the warm grade, the cream title at her tracking. A <b>ruthless panel of judge agents</b> scores the rebuild against the original and fixes one thing at a time until it's <b>indistinguishable</b>. Her taste, codified — so the easy version of her work does itself, and she spends her time on what only she can do.</p>
+  </div>
+
+  <h3 class="arsh" style="margin-top:40px">▸ the sermon, cut by a panel that argues</h3>
+  <div class="demo">
+    <div class="d-app">
+      <div class="d-appbar"><span class="d-pad">Sermon Edit — on-device transcribe + cut-confidence audit</span><span class="d-chip" id="cutChip">3 agents voting…</span></div>
+      <div class="d-split">
+        <div class="d-half"><div class="d-halflbl">my real auto-trim app · running on-device</div><video src="media/sermonapp.mp4" autoplay muted loop playsinline></video></div>
+        <div class="d-half"><div class="d-halflbl">the cut, audited · replaces my visual confirm</div><div class="d-judge" id="cutVote" style="margin-top:0"></div></div>
+      </div>
+    </div>
+    <p class="d-cap">The hard part of cutting a sermon is the <b>exact</b> first and last frame. The app transcribes the whole thing on-device, then <b>three agents independently rank the start and end cut</b> and have to agree. Consensus → it renders the exact cut. They split → it kicks it to me. The judgment I used to make by eye, now made by a panel — and logged.</p>
+  </div>
+
+  <h3 class="arsh" style="margin-top:40px">▸ then it publishes everywhere, on schedule</h3>
+  <div class="demo">
+    <div class="d-app">
+      <div class="d-appbar"><span class="d-pad">studio.youtube.com — upload</span><span class="d-chip" id="ytChip">uploading…</span></div>
+      <div class="yt">
+        <div class="yt-thumb"><img src="media/ep135_recreation.jpg" loading="lazy" alt="the episode thumbnail it built"><span class="yt-dur">1:12:34</span></div>
+        <div class="yt-form">
+          <div class="yt-field"><div class="yt-k">title</div><div class="yt-v" id="ytTitle"></div></div>
+          <div class="yt-field"><div class="yt-k">description</div><div class="yt-v" id="ytDesc" style="font-size:12px;color:var(--txt-dim)"></div></div>
+          <div class="yt-field"><div class="yt-k">visibility</div><div class="yt-v yt-sched">● Scheduled — Thursday, 8:00 AM</div></div>
+          <div class="yt-bar"><i id="ytBar"></i></div>
+          <div class="yt-plats"><span class="yt-plat">▶ YouTube</span><span class="yt-plat">● Spotify</span><span class="yt-plat"># Slack</span></div>
+        </div>
+      </div>
+    </div>
+    <p class="d-cap">The thumbnail it just built, the title and description the uploads agent wrote, set to go <b>Thursday 8am</b> — pushed to <b>YouTube, Spotify, and the team Slack</b> in one move. It once caught a silently-empty Spotify upload and re-pushed it on its own. Capture is automatic; the things that actually go out still get a held breath.</p>
+  </div>
+
+  <h3 class="arsh" style="margin-top:40px">▸ and the reels: just video, audio, and ffmpeg</h3>
+  <div class="demo">
+    <div class="d-app">
+      <div class="d-appbar"><span class="d-pad">ffmpeg — the reel factory · no editor, no GUI</span><span class="d-chip lock">$0 · on-device</span></div>
+      <div class="ff">
+        <div class="ff-time">
+          <div class="ff-track ff-vid"><span class="tk">V · 1920×1080 source</span><div class="ff-play"></div></div>
+          <div class="ff-track"><div class="ff-wave" id="ffWave"></div></div>
+          <div class="ff-steps" id="ffSteps">
+            <div class="ff-step"><b>1</b>crop 9:16 · face-tracked follow</div>
+            <div class="ff-step"><b>2</b>burn word-synced captions</div>
+            <div class="ff-step"><b>3</b>peak-norm → limiter @ −3dB</div>
+            <div class="ff-step"><b>4</b>export · h264 · faststart</div>
+          </div>
+        </div>
+        <div class="ff-out"><video src="media/reel_c0625.mp4" autoplay muted loop playsinline></video></div>
+        <div class="ff-cmd"><span class="fl">ffmpeg</span> -i in.mp4 -vf <span class="fl">"crop=ih*9/16:ih:x=face(t), subtitles=words.ass"</span> -af <span class="fl">"speechnorm, alimiter=limit=0.708"</span> -c:v h264 -movflags +faststart out.mp4</div>
+      </div>
+    </div>
+    <p class="d-cap">No timeline software. A reel is just <b>pixels and audio</b>, so the system treats it that way: crop to vertical while <b>following the face</b>, burn captions synced to the words, normalize and limit the loudness, export. Deterministic, repeatable, <b>$0</b> — the same recipe every week, no app ever opened.</p>
   </div>
 </div></section>
 
@@ -690,15 +784,15 @@ showFeed(0,fleetEl.children[0]);
   ["Afterthoughts podcast","4 skills",[
    ["afterthoughts-edit","Full multicam episode edit in DaVinci — conform by source-TC, AutoPod cut, cold-open hook, intro bumper, −15dB music bed, transcript.",0],
    ["afterthoughts-reels","Builds the Instagram Reels timeline from an episode — transcript-driven selection protocol + multicam assembly.",1],
-   ["afterthoughts-stills","The best genuine-smile, eyes-open, no-blur 4K stills per person for Kayla's thumbnails — a strict vision-graded rubric.",4],
-   ["afterthoughts-thumbnail","Recreates Kayla's exact thumbnail style from raw photos — subject cutouts that keep the mic, her real PSD textures, grade, tracked title.",0]
+   ["afterthoughts-stills","The best genuine-smile, eyes-open, no-blur 4K stills per person for the designer's thumbnails — a strict vision-graded rubric.",4],
+   ["afterthoughts-thumbnail","Recreates my designer's exact thumbnail style from raw photos — subject cutouts that keep the mic, her real PSD textures, grade, tracked title.",0]
   ]],
   ["Sunday service · RRC","5 skills",[
    ["sermon-edit","Cuts a raw sermon end to end — on-device transcribe, a multi-agent cut-confidence audit that replaces my visual confirm, deterministic render.",0],
    ["sermon-reels","Pulls the N best standalone reels from a sermon timeline — each its own layer-aligned timeline, auto-captioned.",2],
    ["baptism-captions","Bilingual EN+ES captions on baptism-testimony timelines — DaVinci transcribe + Mexican-Spanish in the exact RRA subtitle style.",0],
    ["out-of-context","Branded social cuts from Sunday captures — a funny 'out of context' compilation or a single clip, face-tracked 9:16, word-synced captions.",0],
-   ["shuddle-story","The weekly FOMO pre-service staff-huddle IG story — sub-1-min 9:16, BEANZ grade, locked caption style, brand bug.",0]
+   ["shuddle-story","A weekly pre-service staff-huddle IG story — sub-1-min 9:16, brand grade, locked caption style, brand bug.",0]
   ]],
   ["Brand · social · utility","3 skills",[
    ["social-analytics-brief","Turns social performance data into an interactive multi-page HTML brief — baseline-scored breakouts, retention curves, a dated action list.",0],
@@ -781,6 +875,43 @@ showFeed(0,fleetEl.children[0]);
  const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting&&!started){started=true;run();}}),{threshold:.3});
  obs.observe(j);
  setInterval(run,7200);
+})();
+
+// ===== demo 3 · sermon cut audit =====
+(function(){
+ const el=document.getElementById('cutVote'); if(!el)return;
+ const chip=document.getElementById('cutChip');
+ const rows=[["agent 01 · start 00:42.6 / end 31:18","0.94 ✓"],["agent 02 · start 00:42.6 / end 31:18","0.91 ✓"],["agent 03 · start 00:43.0 / end 31:17","0.96 ✓"]];
+ el.innerHTML=rows.map(r=>'<div class="d-jrow"><span class="jk">'+r[0]+'</span><span class="jv">'+r[1]+'</span></div>').join('')+'<div class="d-verdict" style="font-size:14px">consensus → cut 00:42.6 · rendering</div>';
+ const jr=[...el.querySelectorAll('.d-jrow')], v=el.querySelector('.d-verdict');
+ function run(){ jr.forEach(r=>r.classList.remove('show')); v.classList.remove('show'); if(chip){chip.textContent='3 agents voting…';chip.classList.remove('lock');}
+   jr.forEach((r,i)=>setTimeout(()=>r.classList.add('show'),500+i*700));
+   setTimeout(()=>{v.classList.add('show'); if(chip){chip.textContent='✓ consensus';chip.classList.add('lock');}},500+jr.length*700+300); }
+ const o=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){run();}}),{threshold:.3}); o.observe(el); setInterval(run,7000);
+})();
+
+// ===== demo 4 · youtube/spotify publish =====
+(function(){
+ const t=document.getElementById('ytTitle'); if(!t)return;
+ const desc=document.getElementById('ytDesc'), bar=document.getElementById('ytBar'), chip=document.getElementById('ytChip');
+ const plats=[...document.querySelectorAll('.yt-plat')];
+ const title="Afterthoughts EP135 — is Gen Z done with dating?";
+ const dline="Timestamps, links, and the full transcript — drafted by the uploads agent.";
+ function run(){
+   t.innerHTML=''; desc.textContent=''; if(bar)bar.style.width='0'; plats.forEach(p=>p.classList.remove('done')); if(chip){chip.textContent='uploading…';chip.classList.remove('lock');}
+   let i=0; const ti=setInterval(()=>{ i++; t.innerHTML=title.slice(0,i)+'<span class="cur"></span>'; if(i>=title.length){clearInterval(ti); t.innerHTML=title; desc.textContent=dline;} },34);
+   setTimeout(()=>{ let w=0; const bi=setInterval(()=>{ w+=4; if(bar)bar.style.width=Math.min(100,w)+'%'; if(w>=100){clearInterval(bi); plats.forEach((p,kk)=>setTimeout(()=>p.classList.add('done'),kk*350)); if(chip){chip.textContent='✓ published';chip.classList.add('lock');}} },55); },title.length*34+300);
+ }
+ const o=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){run();}}),{threshold:.3}); o.observe(t); setInterval(run,8200);
+})();
+
+// ===== demo 5 · ffmpeg reel factory =====
+(function(){
+ const wv=document.getElementById('ffWave'); if(!wv)return;
+ const steps=[...document.querySelectorAll('#ffSteps .ff-step')];
+ let h=''; for(let i=0;i<70;i++){ const val=Math.abs(Math.sin(i*0.6)+0.5*Math.sin(i*0.27)); h+='<i style="height:'+(20+Math.min(80,val*60))+'%"></i>'; } wv.innerHTML=h;
+ let kk=0; function run(){ steps.forEach((s,i)=>s.classList.toggle('on',i<=kk)); kk=(kk+1)%(steps.length+1); }
+ run(); setInterval(run,950);
 })();
 </script>
 </body>
