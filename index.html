@@ -665,6 +665,9 @@ exec "$real" "$@"   <span class="ok"># everything else passes through, untouched
 </div></footer>
 
 <script>
+// always land at the very top on entry — no browser scroll-restore, no auto-scroll
+if('scrollRestoration' in history) history.scrollRestoration='manual';
+window.scrollTo(0,0);
 // ===== BOOT SEQUENCE =====
 const bootSeq=[
  ["<span class='dim'>CONTEXT_HARNESS BIOS v4.8 — initializing…</span>",90],
@@ -682,7 +685,7 @@ const bootSeq=[
 (function(){
  const box=document.getElementById('bootlines'); let i=0;
  function next(){
-   if(i>=bootSeq.length){ setTimeout(()=>{document.getElementById('boot').classList.add('hide');document.body.style.overflow='';startCounts();},520); return; }
+   if(i>=bootSeq.length){ setTimeout(()=>{document.getElementById('boot').classList.add('hide');document.body.style.overflow='';window.scrollTo(0,0);startCounts();},520); return; }
    const [txt,d]=bootSeq[i]; const el=document.createElement('div'); el.className='ln';
    el.innerHTML=(txt?("<span class='prompt'></span>"+txt):"")+"<span class='cur'></span>"; box.appendChild(el);
    requestAnimationFrame(()=>{el.style.transition='opacity .12s';el.style.opacity='1';});
@@ -752,12 +755,12 @@ const agents=[
 ];
 const fleetEl=document.getElementById('fleetGrid');
 agents.forEach((a,i)=>{
- const d=document.createElement('div'); d.className='agent'; d.onclick=()=>showFeed(i,d);
+ const d=document.createElement('div'); d.className='agent'; d.onclick=()=>showFeed(i,d,true);
  d.innerHTML=`<span class="live"><i></i>LIVE</span><div class="nm">${a.nm}</div><div class="role">${a.role}</div><div class="more">▸ tail session</div>`;
  fleetEl.appendChild(d);
 });
 let feedTimer;
-function showFeed(i,el){
+function showFeed(i,el,scroll){
  document.querySelectorAll('.agent').forEach(a=>a.style.borderColor='');
  el.style.borderColor='var(--grn-dim)';
  const a=agents[i]; const box=document.getElementById('agentFeed'); clearInterval(feedTimer);
@@ -766,7 +769,7 @@ function showFeed(i,el){
  function line(){ if(l>=a.feed.length){body.innerHTML+="\n<span class='cur'></span>";return;}
    const t=a.feed[l]; const cls=t.startsWith('✓')?'ok':t.startsWith('→')?'a':'';
    body.innerHTML+=(l?'\n':'')+`<span class="${cls}">${t.replace('❯','<span class=prompt></span>')}</span>`; l++; feedTimer=setTimeout(line,420);
- } line(); box.scrollIntoView({behavior:'smooth',block:'nearest'});
+ } line(); if(scroll) box.scrollIntoView({behavior:'smooth',block:'nearest'});
 }
 showFeed(0,fleetEl.children[0]);
 
