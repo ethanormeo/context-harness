@@ -232,6 +232,25 @@ footer .meta{color:var(--txt-dim);font-size:12.5px;margin-top:16px}
 .d-rendline{font-family:var(--mono);font-size:13px;opacity:0;transform:translateX(-8px);transition:.4s}
 .d-rendline.show{opacity:1;transform:none}
 .d-rendline.ok{color:var(--grn)}.d-rendline.a{color:var(--amber)}
+.d-showstrip{display:flex;align-items:center;gap:14px;border:1px solid var(--line);border-radius:9px;background:var(--panel);padding:10px;margin-bottom:16px}
+.d-showstrip video{width:128px;height:72px;object-fit:cover;border-radius:6px;border:1px solid var(--line);background:#000;flex:none}
+.d-showstrip span{font-size:12.5px;color:var(--txt-dim);line-height:1.5}
+.d-showstrip b{color:var(--grn)}
+.d-thumbwrap{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.d-thumb{flex:1;min-width:240px;position:relative}
+.d-thumb img{width:100%;border-radius:8px;border:1px solid var(--line);display:block}
+.d-thumb .d-tl{position:absolute;top:8px;left:8px;font-family:var(--mono);font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--txt-dim);background:rgba(5,12,8,.82);padding:3px 8px;border-radius:5px;border:1px solid var(--line)}
+.d-thumb .d-tl.grn{color:var(--grn);border-color:var(--grn-dim);text-shadow:var(--glow)}
+.d-vs{font-family:var(--disp);color:var(--grn-dim);font-size:15px;flex:none}
+@media(max-width:600px){.d-vs{display:none}}
+.d-judge{margin-top:16px;border:1px solid var(--line);border-radius:9px;background:#060a07;padding:14px 16px;font-family:var(--mono);font-size:12.5px}
+.d-jrow{display:flex;align-items:center;gap:10px;padding:4px 0;opacity:0;transform:translateY(4px);transition:.4s}
+.d-jrow.show{opacity:1;transform:none}
+.d-jrow .jk{color:var(--txt-dim)}
+.d-jrow .jv{margin-left:auto;color:var(--grn)}
+.d-verdict{margin-top:10px;font-family:var(--disp);font-size:16px;color:var(--grn);text-shadow:var(--glow);opacity:0;transition:.6s}
+.d-verdict.show{opacity:1}
+.d-verdict .vs{font-size:30px;font-weight:800;margin-left:8px}
 </style>
 </head>
 <body data-commit="1781733006">
@@ -514,6 +533,18 @@ exec "$real" "$@"   <span class="ok"># everything else passes through, untouched
       <p class="d-cap">Out comes a finished vertical clip — <b>graded, captioned, on-brand</b> — minutes after the moment, not hours. Pulled from a stream that's <i>still live</i>. That's the whole point: Sunday's best moment is shippable <b>before the service even ends</b>.</p>
     </div>
   </div>
+
+  <h3 class="arsh" style="margin-top:40px">▸ and the part Kayla asked for: her style, recreated from raw photos</h3>
+  <div class="demo" id="thumbDemo">
+    <div class="d-showstrip"><video src="media/bumper.mp4" autoplay muted loop playsinline></video><span><b>Afterthoughts</b> — the weekly podcast. Every episode needs a thumbnail in my designer Kayla's exact style. The system learned that style from her own files and rebuilds it from the raw episode photos.</span></div>
+    <div class="d-thumbwrap">
+      <div class="d-thumb"><span class="d-tl">Kayla's original</span><img src="media/ep135_kayla.jpg" loading="lazy" alt="Kayla's actual EP135 thumbnail"></div>
+      <div class="d-vs">vs</div>
+      <div class="d-thumb"><span class="d-tl grn">design.agent · rebuilt from photos</span><img src="media/ep135_recreation.jpg" loading="lazy" alt="design.agent recreation of the thumbnail"></div>
+    </div>
+    <div class="d-judge" id="thumbJudge"></div>
+    <p class="d-cap">Left is Kayla's real thumbnail. Right is what the system built from the <b>raw episode photos</b> — her exact wood texture, cutouts that keep each person's own mic, the warm grade, the cream title at her tracking. A <b>ruthless panel of judge agents</b> scores the rebuild against the original and fixes one thing at a time until it's <b>indistinguishable</b>. Her taste, codified — so the easy version of her work does itself, and she spends her time on what only she can do.</p>
+  </div>
 </div></section>
 
 <footer><div class="wrap reveal">
@@ -726,6 +757,23 @@ showFeed(0,fleetEl.children[0]);
    rls.forEach((r,i)=>setTimeout(()=>r.classList.add('show'),1700+i*460));
  }
  outCycle(); setInterval(outCycle,5400);
+})();
+
+// ===== thumbnail-recreation judge =====
+(function(){
+ const j=document.getElementById('thumbJudge'); if(!j)return;
+ const rows=[["judge 01 · composition + cutouts","96 · GO"],["judge 02 · grade + texture","98 · GO"],["judge 03 · title + tracking","97 · GO"]];
+ j.innerHTML=rows.map(r=>'<div class="d-jrow"><span class="jk">'+r[0]+'</span><span class="jv">'+r[1]+'</span></div>').join('')+'<div class="d-verdict">verdict: indistinguishable<span class="vs" id="vScore">0</span><span style="font-size:15px">/100</span></div>';
+ const jr=[...j.querySelectorAll('.d-jrow')], v=j.querySelector('.d-verdict'), vs=document.getElementById('vScore');
+ function run(){
+   jr.forEach(r=>r.classList.remove('show')); v.classList.remove('show'); if(vs)vs.textContent='0';
+   jr.forEach((r,i)=>setTimeout(()=>r.classList.add('show'),500+i*650));
+   setTimeout(()=>{ v.classList.add('show'); let c=0; const iv=setInterval(()=>{c+=3;if(c>=97){c=97;clearInterval(iv);} if(vs)vs.textContent=c;},26); },500+jr.length*650+300);
+ }
+ let started=false;
+ const obs=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting&&!started){started=true;run();}}),{threshold:.3});
+ obs.observe(j);
+ setInterval(run,7200);
 })();
 </script>
 </body>
