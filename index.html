@@ -225,7 +225,7 @@ footer .meta{color:var(--txt-dim);font-size:12.5px;margin-top:16px}
 .d-out{display:flex;gap:20px;flex-wrap:wrap;align-items:center}
 .d-phone{width:150px;height:266px;flex:none;border-radius:16px;border:1px solid var(--line);position:relative;overflow:hidden;background:#05100b}
 .d-phonegrade{position:absolute;inset:0;background:linear-gradient(160deg,rgba(255,180,84,.22),rgba(13,58,38,.5) 55%,rgba(5,16,11,.92)),radial-gradient(ellipse at 50% 32%,rgba(255,200,120,.18),transparent 55%)}
-.d-brandbug{position:absolute;top:12px;left:0;right:0;text-align:center;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-weight:700;font-size:11px;letter-spacing:2px;color:#fff;opacity:.82}
+.d-brandbug{position:absolute;top:12px;left:0;right:0;text-align:center;font-family:var(--disp);font-weight:800;font-size:11px;letter-spacing:2px;color:#fff;opacity:.8}
 .d-cc{position:absolute;bottom:24px;left:10px;right:10px;text-align:center;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-weight:700;font-size:17px;letter-spacing:-.3px;line-height:1.12;color:#fff;text-shadow:0 2px 8px #000;min-height:42px}
 .d-cc b{color:var(--grn)}
 .d-render{flex:1;min-width:240px;display:flex;flex-direction:column;justify-content:center;gap:9px}
@@ -571,7 +571,7 @@ exec "$real" "$@"   <span class="ok"># everything else passes through, untouched
 
     <div class="d-panel">
       <div class="d-out">
-        <div class="d-phone"><video src="media/reel_c0625.mp4" autoplay muted loop playsinline></video><div class="d-phonegrade"></div><div class="d-brandbug">REEL</div><div class="d-cc" id="ccLine"></div></div>
+        <div class="d-phone"><video src="media/reel_fomo.mp4" autoplay muted loop playsinline></video><div class="d-brandbug">REEL</div></div>
         <div class="d-render">
           <div class="d-rendline ok">✓ paired multicam · clean board audio over the camera angle</div>
           <div class="d-rendline ok">✓ 9:16 reframe · the brand grade baked in</div>
@@ -640,7 +640,7 @@ exec "$real" "$@"   <span class="ok"># everything else passes through, untouched
             <div class="ff-step"><b>4</b>export · h264 · faststart</div>
           </div>
         </div>
-        <div class="ff-out"><video src="media/reel_c0625.mp4" autoplay muted loop playsinline></video></div>
+        <div class="ff-out"><video src="media/reel_fomo2.mp4" autoplay muted loop playsinline></video></div>
         <div class="ff-cmd"><span class="fl">ffmpeg</span> -i in.mp4 -vf <span class="fl">"crop=ih*9/16:ih:x=face(t), subtitles=words.ass"</span> -af <span class="fl">"speechnorm, alimiter=limit=0.708"</span> -c:v h264 -movflags +faststart out.mp4</div>
       </div>
     </div>
